@@ -52,3 +52,5 @@ next-env.d.ts
 # User Uploaded Media (keep seed SVGs)
 /public/uploads/upload-*
 .agents
+generated
+public/uploads

@@ -22,7 +22,6 @@ import {
   AlertCircleIcon,
   UploadCloudIcon,
   CloseIcon,
-  ShieldIcon,
   CheckIcon,
 } from "./Icons";
 
@@ -46,7 +45,7 @@ export function FoodCatalogCrud({
   const [editingFood, setEditingFood] = useState<Food | null>(null);
 
   // Rate limit state
-  const [rateLimit, setRateLimit] = useState<RateLimitResult>(initialRateLimit);
+  const [, setRateLimit] = useState<RateLimitResult>(initialRateLimit);
   const [rateLimitCountdown, setRateLimitCountdown] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -562,7 +561,7 @@ function FoodFormModal({
             )}
           </div>
 
-          {/* Unified Image Dropzone (Shows only image when uploaded, hover overlay to replace) */}
+          {/* Unified Image Dropzone */}
           <div>
             <label className="font-heading block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
               รูปภาพอาหาร (อัปโหลดรูปภาพจานอาหาร)

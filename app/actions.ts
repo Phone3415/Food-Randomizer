@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import path from "node:path";
 import fs from "node:fs/promises";
+
 import {
   getAllFoods,
   getFoodCategories,
@@ -59,7 +60,6 @@ export async function addFoodAction(formData: FormData): Promise<ActionResponse<
 
   const rawName = formData.get("name") as string | null;
   const rawCategory = formData.get("category") as string | null;
-  const file = formData.get("image") as File | null;
 
   // Server-side HTML & Input Sanitization (defense in depth)
   const name = sanitizeHtml(rawName);
@@ -80,6 +80,8 @@ export async function addFoodAction(formData: FormData): Promise<ActionResponse<
       rateLimit: rateCheck,
     };
   }
+
+  const file = formData.get("image") as File | null;
 
   let imageUrl = "/uploads/seed-pad-thai.svg"; // default fallback
 
@@ -159,8 +161,6 @@ export async function updateFoodAction(
 
   const rawName = formData.get("name") as string | null;
   const rawCategory = formData.get("category") as string | null;
-  const file = formData.get("image") as File | null;
-
   // Server-side HTML & Input Sanitization
   const name = rawName !== null ? sanitizeHtml(rawName) : undefined;
   const category = rawCategory !== null ? sanitizeHtml(rawCategory) : undefined;
@@ -180,6 +180,8 @@ export async function updateFoodAction(
       rateLimit: rateCheck,
     };
   }
+
+  const file = formData.get("image") as File | null;
 
   let imageUrl: string | undefined = undefined;
 

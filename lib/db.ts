@@ -3,7 +3,6 @@ import fs from "node:fs";
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { Food, RateLimitResult } from "./types";
-import { SEED_FOODS } from "./seed-data";
 
 const dataDir = path.join(process.cwd(), "data");
 if (!fs.existsSync(dataDir)) {
@@ -62,45 +61,6 @@ export function clearCache(): void {
   cache.categories = null;
 }
 
-let isSeeded = false;
-
-export async function ensureDatabaseSeeded(): Promise<void> {
-  if (isSeeded) return;
-
-  // Ensure seed images exist in public/uploads
-  for (const item of SEED_FOODS) {
-    const targetFilePath = path.join(uploadsDir, item.imageFileName);
-    if (!fs.existsSync(targetFilePath)) {
-      fs.writeFileSync(targetFilePath, item.svgContent, "utf-8");
-    }
-  }
-
-  const existingCount = await prisma.food.count();
-  if (existingCount === 0) {
-    const now = Date.now();
-    for (let i = 0; i < SEED_FOODS.length; i++) {
-      const item = SEED_FOODS[i];
-      await prisma.food.upsert({
-        where: { id: item.id },
-        update: {
-          name: item.name,
-          category: item.category,
-          imageUrl: `/uploads/${item.imageFileName}`,
-        },
-        create: {
-          id: item.id,
-          name: item.name,
-          category: item.category,
-          imageUrl: `/uploads/${item.imageFileName}`,
-          createdAt: BigInt(now - i * 1000),
-        },
-      });
-    }
-  }
-
-  isSeeded = true;
-}
-
 /**
  * Checks rate limit for a specific IP.
  * Enforces max 5 actions per minute.
@@ -111,7 +71,6 @@ export async function checkAndRecordRateLimit(
   limit: number = 5,
   windowMs: number = 60000
 ): Promise<RateLimitResult> {
-  await ensureDatabaseSeeded();
   const now = Date.now();
   const windowStart = now - windowMs;
 
@@ -181,7 +140,6 @@ export async function getRateLimitStatus(
   limit: number = 5,
   windowMs: number = 60000
 ): Promise<RateLimitResult> {
-  await ensureDatabaseSeeded();
   const now = Date.now();
   const windowStart = now - windowMs;
 
@@ -224,7 +182,6 @@ export async function getAllFoods(): Promise<Food[]> {
     return cache.foods.data;
   }
 
-  await ensureDatabaseSeeded();
   const rows = await prisma.food.findMany({
     orderBy: {
       createdAt: "desc",
@@ -253,7 +210,6 @@ export async function getFoodCategories(): Promise<string[]> {
     return cache.categories.data;
   }
 
-  await ensureDatabaseSeeded();
   const rows = await prisma.food.findMany({
     distinct: ["category"],
     select: {
@@ -278,7 +234,6 @@ export async function createFood(item: {
   category: string;
   imageUrl: string;
 }): Promise<Food> {
-  await ensureDatabaseSeeded();
   const id = `food-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   const now = Date.now();
 
@@ -307,7 +262,6 @@ export async function updateFood(
   id: string,
   item: { name?: string; category?: string; imageUrl?: string }
 ): Promise<Food | null> {
-  await ensureDatabaseSeeded();
   const current = await prisma.food.findUnique({
     where: { id },
   });
@@ -339,7 +293,6 @@ export async function updateFood(
 }
 
 export async function deleteFood(id: string): Promise<boolean> {
-  await ensureDatabaseSeeded();
   const existing = await prisma.food.findUnique({
     where: { id },
     select: { imageUrl: true },
