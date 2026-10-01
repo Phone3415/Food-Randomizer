@@ -69,7 +69,7 @@ export async function checkAndRecordRateLimit(
   ip: string,
   action: string,
   limit: number = 5,
-  windowMs: number = 60000
+  windowMs: number = 60000,
 ): Promise<RateLimitResult> {
   const now = Date.now();
   const windowStart = now - windowMs;
@@ -106,8 +106,13 @@ export async function checkAndRecordRateLimit(
       },
     });
 
-    const oldestTimestamp = oldestResult ? Number(oldestResult.timestamp) : windowStart;
-    const resetInSeconds = Math.max(1, Math.ceil((oldestTimestamp + windowMs - now) / 1000));
+    const oldestTimestamp = oldestResult
+      ? Number(oldestResult.timestamp)
+      : windowStart;
+    const resetInSeconds = Math.max(
+      1,
+      Math.ceil((oldestTimestamp + windowMs - now) / 1000),
+    );
 
     return {
       allowed: false,
@@ -138,7 +143,7 @@ export async function checkAndRecordRateLimit(
 export async function getRateLimitStatus(
   ip: string,
   limit: number = 5,
-  windowMs: number = 60000
+  windowMs: number = 60000,
 ): Promise<RateLimitResult> {
   const now = Date.now();
   const windowStart = now - windowMs;
@@ -167,8 +172,13 @@ export async function getRateLimitStatus(
       },
     });
 
-    const oldestTimestamp = oldestResult ? Number(oldestResult.timestamp) : windowStart;
-    const resetInSeconds = Math.max(1, Math.ceil((oldestTimestamp + windowMs - now) / 1000));
+    const oldestTimestamp = oldestResult
+      ? Number(oldestResult.timestamp)
+      : windowStart;
+    const resetInSeconds = Math.max(
+      1,
+      Math.ceil((oldestTimestamp + windowMs - now) / 1000),
+    );
 
     return { allowed: false, remaining: 0, resetInSeconds };
   }
@@ -260,7 +270,7 @@ export async function createFood(item: {
 
 export async function updateFood(
   id: string,
-  item: { name?: string; category?: string; imageUrl?: string }
+  item: { name?: string; category?: string; imageUrl?: string },
 ): Promise<Food | null> {
   const current = await prisma.food.findUnique({
     where: { id },
@@ -269,8 +279,10 @@ export async function updateFood(
   if (!current) return null;
 
   const newName = item.name !== undefined ? item.name.trim() : current.name;
-  const newCategory = item.category !== undefined ? item.category.trim() : current.category;
-  const newImageUrl = item.imageUrl !== undefined ? item.imageUrl : current.imageUrl;
+  const newCategory =
+    item.category !== undefined ? item.category.trim() : current.category;
+  const newImageUrl =
+    item.imageUrl !== undefined ? item.imageUrl : current.imageUrl;
 
   const updated = await prisma.food.update({
     where: { id },
@@ -283,8 +295,8 @@ export async function updateFood(
 
   // Delete the old file if the image was replaced
   if (
-    item.imageUrl !== undefined && 
-    item.imageUrl !== current.imageUrl && 
+    item.imageUrl !== undefined &&
+    item.imageUrl !== current.imageUrl &&
     current.imageUrl.startsWith("/uploads/upload-")
   ) {
     const filename = path.basename(current.imageUrl);
