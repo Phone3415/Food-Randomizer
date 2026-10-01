@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="foodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="soupGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#fba85a"/>
+    </linearGradient>
+  </defs>
+  <!-- Background badge for clean visibility on light and dark browser tab bars -->
+  <rect width="64" height="64" rx="16" fill="#18181b"/>
+  <!-- Bowl Outer -->
+  <path d="M12 30 C12 47, 21 53, 32 53 C43 53, 52 47, 52 30 Z" fill="url(#foodGrad)"/>
+  <!-- Bowl Base Foot -->
+  <path d="M26 53 L38 53 L36 56 L28 56 Z" fill="#b91c1c"/>
+  <!-- Soup Surface -->
+  <ellipse cx="32" cy="30" rx="20" ry="6.5" fill="url(#soupGrad)"/>
+  <!-- Noodles waves -->
+  <path d="M18 29 Q25 23 32 29 T46 29" stroke="#fef08a" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M21 26 Q28 20 35 26 T43 26" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <!-- Chopsticks -->
+  <line x1="52" y1="12" x2="28" y2="34" stroke="#e2e8f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="55" y1="17" x2="31" y2="36" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Steam curls -->
+  <path d="M25 18 Q23 14 26 11" stroke="#fed7aa" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
+  <path d="M33 16 Q31 12 34 9" stroke="#fed7aa" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
+  <circle cx="33" cy="27" r="2.5" fill="#22c55e"/>
+  <circle cx="39" cy="29" r="2" fill="#ef4444"/>
+</svg>

@@ -1,0 +1,29 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+model Food {
+  id        String @id
+  name      String
+  category  String
+  imageUrl  String @map("image_url")
+  createdAt BigInt @map("created_at")
+
+  @@index([category], map: "idx_foods_category")
+  @@map("foods")
+}
+
+model RateLimit {
+  id        Int    @id @default(autoincrement())
+  ip        String
+  action    String
+  timestamp BigInt
+
+  @@index([ip, timestamp], map: "idx_rate_limits_ip_time")
+  @@map("rate_limits")
+}

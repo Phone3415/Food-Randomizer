@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+      <rect width="400" height="400" fill="#f8fafc"/>
+      <circle cx="200" cy="200" r="140" fill="#fed7aa" stroke="#f97316" stroke-width="4"/>
+      <ellipse cx="200" cy="200" rx="110" ry="80" fill="#ea580c"/>
+      <path d="M120 180 Q160 140 220 170 T280 200" stroke="#fef08a" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <path d="M130 210 Q180 230 240 190 T270 230" stroke="#fef08a" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <circle cx="170" cy="180" r="16" fill="#f87171"/>
+      <circle cx="230" cy="170" r="14" fill="#f87171"/>
+      <circle cx="210" cy="220" r="15" fill="#f87171"/>
+      <circle cx="160" cy="220" r="6" fill="#22c55e"/>
+      <circle cx="240" cy="210" r="6" fill="#22c55e"/>
+      <circle cx="190" cy="160" r="6" fill="#22c55e"/>
+      <text x="200" y="360" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#64748b" text-anchor="middle">STREET FOOD</text>
+    </svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+      <rect width="400" height="400" fill="#f8fafc"/>
+      <ellipse cx="200" cy="210" rx="140" ry="90" fill="#15803d"/>
+      <ellipse cx="150" cy="205" rx="45" ry="35" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <path d="M200 170 C240 160, 270 190, 250 230 C220 230, 210 190, 200 170 Z" fill="#facc15" stroke="#eab308" stroke-width="2"/>
+      <path d="M225 185 C265 175, 290 205, 270 240 C240 240, 235 200, 225 185 Z" fill="#eab308"/>
+      <path d="M130 195 Q150 185 170 200" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <text x="200" y="360" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#64748b" text-anchor="middle">DESSERT</text>
+    </svg>

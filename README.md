@@ -1,36 +1,175 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Street Food Randomizer (ระบบสุ่มเมนูอาหาร - วันนี้กินอะไรดี?)
 
-## Getting Started
+เว็บแอปพลิเคชันสำหรับช่วยตัดสินใจเลือกรับประทานอาหาร พร้อมระบบสุ่มเมนูแบบภาพเคลื่อนไหว การจัดการรายการอาหาร และการควบคุมความปลอดภัยระดับเซิร์ฟเวอร์
 
-First, run the development server:
+> **ข้อความชี้แจง (Disclaimer)**  
+> โครงการนี้ได้รับการพัฒนาในรูปแบบ **Vibecoding โดยใช้ Gemini ภายในระยะเวลา 3 ชั่วโมง** เน้นความกระชับ ความแม่นยำทางสถาปัตยกรรม และมาตรฐานเว็บสมัยใหม่
+
+---
+
+## คุณสมบัติเด่นของระบบ
+
+### 1. ระบบสุ่มเมนูอาหารแบบโต้ตอบ (Interactive Randomizer)
+
+- สุ่มเลือกเมนูอาหารด้วยภาพเคลื่อนไหวแบบ Roll Animation ที่ลื่นไหล
+- กรองการสุ่มตามหมวดหมู่ได้ เช่น อาหารตามสั่ง, ของทานเล่น, ฟาสต์ฟู้ด, เมนูเส้น, สลัดและเพื่อสุขภาพ, ของหวานและเครื่องดื่ม
+- บันทึกประวัติการสุ่มรอบก่อนหน้า เพื่อช่วยในการเปรียบเทียบและป้องกันการเลือกซ้ำ
+- ปุ่มยืนยันการเลือกเมนูพร้อมเอฟเฟกต์ตอบสนองทันที
+
+### 2. ระบบจัดการข้อมูลเมนูอาหาร (Full CRUD Operations)
+
+- เพิ่มเมนูใหม่พร้อมระบุชื่อ หมวดหมู่ และอัปโหลดรูปภาพประกอบ
+- แก้ไขข้อมูลเมนูและสลับเปลี่ยนรูปภาพได้อย่างรวดเร็ว
+- ลบเมนูที่ไม่ต้องการ พร้อมระบบตรวจสอบและล้างไฟล์รูปภาพที่ไม่ใช้งานออกจากเซิร์ฟเวอร์โดยอัตโนมัติ
+- หน้าต่าง Modal แสดงผลด้วย Transition และ Backdrop Blur ตามมาตรฐาน UI สมัยใหม่
+
+### 3. มาตรการความปลอดภัยแบบ Zero-Trust
+
+- **Server-Side HTML Sanitization**: กรองและลบล้างแท็ก HTML, JavaScript Injection และ Control Characters ที่อาจเป็นอันตรายก่อนบันทึกลงฐานข้อมูล
+- **IP-Based Sliding Window Rate Limiting**: ระบบจำกัดอัตราการเรียกใช้งาน (5 ครั้งต่อนาทีต่อหนึ่ง IP Address) พร้อมคำนวณเวลานับถอยหลังในการคืนโควตาอย่างแม่นยำ
+- **File Validation**: ตรวจสอบประเภทไฟล์ภาพ (รองรับ JPG, PNG, WebP, GIF, SVG) และจำกัดขนาดไฟล์ไม่เกิน 3MB
+
+### 4. โหมดการแสดงผล (Light / Dark Mode)
+
+- รองรับธีมสว่างและธีมมืดอย่างสมบูรณ์แบบด้วย `next-themes`
+- ออกแบบโทนสีและระดับความเข้มผ่าน CSS Variables อย่างประณีต
+
+### 5. การจัดการฐานข้อมูลประสิทธิภาพสูง
+
+- จัดการข้อมูลผ่าน **Prisma 7 ORM** ร่วมกับ **SQLite** โดยใช้ไดรเวอร์อะแดปเตอร์ `@prisma/adapter-better-sqlite3`
+- มาพร้อมข้อมูลเริ่มต้น (Seed Data) และภาพเวกเตอร์ SVG เมนูอาหารไทยและสตรีทฟู้ดยอดนิยม 10 รายการ
+
+### 6. ระบบแคชในหน่วยความจำสองระดับ (Two-Tier Memory Caching)
+
+- **Backend In-Memory Cache (1 นาที)**: แคชข้อมูลรายการอาหารและหมวดหมู่ไว้ในหน่วยความจำเซิร์ฟเวอร์ (`lib/db.ts`) มีอายุ 1 นาที (60 วินาที) เพื่อลดภาระการเรียกฐานข้อมูล SQLite ซ้ำซ้อน พร้อมระบบ **Cache Invalidation** อัตโนมัติทันทีที่มีการเพิ่ม แก้ไข หรือลบเมนู
+- **Frontend & Route Cache (2 นาที)**: กำหนด `revalidate = 120` ที่ระดับ Route ใน Next.js และรองรับแคชในหน่วยความจำฝั่งเบราว์เซอร์ (`lib/client-cache.ts`) เป็นเวลา 2 นาที (120 วินาที) เพื่อให้การแสดงผลลื่นไหลและประหยัดการเชื่อมต่อเครือข่าย
+
+---
+
+## เทคโนโลยีที่ใช้งาน (Tech Stack)
+
+- **เฟรมเวิร์กหลัก**: Next.js 16 (App Router และ Server Actions)
+- **ไลบรารีส่วนต่อประสาน**: React 19
+- **ภาษา**: TypeScript (Strict Typing)
+- **การจัดสไตล์**: Tailwind CSS v4 ร่วมกับ Custom CSS Variables
+- **ชุดไอคอน**: Google Material Symbols Rounded
+- **ฐานข้อมูลและ ORM**: Prisma 7 และ SQLite (`better-sqlite3`)
+- **การจัดการธีม**: `next-themes`
+
+---
+
+## โครงสร้างโปรเจกต์ (Project Structure)
+
+```text
+food-randomizer/
+├── app/
+│   ├── actions.ts          # Server Actions สำหรับ CRUD, Rate Limiting และ Sanitization
+│   ├── globals.css         # สไตล์ส่วนกลาง ดีไซน์โทนสี และคีย์เฟรมแอนิเมชัน
+│   ├── layout.tsx          # Root Layout กำหนดฟอนต์ เมทาดาทา และ ThemeProvider
+│   └── page.tsx            # Server Component หน้าหลักของระบบ
+├── components/
+│   ├── FoodAppClient.tsx   # คอมโพเนนต์หลักฝั่งไคลเอนต์และตัวจัดการสถานะ
+│   ├── FoodCatalogCrud.tsx # โมดอลจัดการรายการอาหารและการเพิ่ม/แก้ไขเมนู
+│   ├── FoodRandomizer.tsx  # บัตรสุ่มอาหารและแอนิเมชันการหมุนสุ่ม
+│   ├── Header.tsx          # ส่วนหัวแสดงโลโก้ สถิติจำนวนเมนู และปุ่มสลับธีม
+│   ├── Icons.tsx           # คอมโพเนนต์ครอบ Google Material Symbols
+│   └── ThemeProvider.tsx   # คอมโพเนนต์เชื่อมต่อ next-themes
+├── data/
+│   └── street_food.db      # ไฟล์ฐานข้อมูล SQLite (สร้างอัตโนมัติเมื่อเริ่มระบบ)
+├── generated/
+│   └── prisma/             # รหัสต้นฉบับ Prisma Client 7 ที่ถูกสร้างขึ้น
+├── lib/
+│   ├── client-cache.ts     # ระบบแคชหน่วยความจำฝั่งไคลเอนต์ (2 นาที TTL)
+│   ├── db.ts               # ตัวจัดการ PrismaClient, แคชหน่วยความจำฝั่งเซิร์ฟเวอร์ (1 นาที TTL) และฟังก์ชันสืบค้นข้อมูล
+│   ├── sanitize.ts         # ยูทิลิตีกรองและตัดโค้ดอันตราย (Server-side Sanitization)
+│   ├── seed-data.ts        # ข้อมูลเมนูเริ่มต้นและภาพเวกเตอร์ SVG
+│   └── types.ts            # อินเทอร์เฟซและไทป์ร่วมของ TypeScript
+├── prisma/
+│   └── schema.prisma       # โครงสร้างแบบจำลองข้อมูล (Food และ RateLimit)
+├── public/
+│   └── uploads/            # พื้นที่จัดเก็บไฟล์ภาพที่อัปโหลดและรูปตั้งต้น
+├── .env                    # ไฟล์กำหนดตัวแปรสภาพแวดล้อม
+├── prisma.config.ts        # ไฟล์กำหนดค่าสำหรับ Prisma 7 CLI
+├── package.json
+└── tsconfig.json
+```
+
+---
+
+## วิธีการติดตั้งและเริ่มใช้งาน (Getting Started)
+
+### ข้อกำหนดของระบบ
+
+- **Node.js**: เวอร์ชัน `20.19.0` ขึ้นไป
+- **Package Manager**: npm, pnpm หรือ yarn
+
+### 1. คัดลอกโปรเจกต์ (Clone Repository)
+
+```bash
+git clone https://github.com/Phone3415/Food-Randomizer.git
+cd Food-Randomizer
+```
+
+### 2. ติดตั้ง Dependencies
+
+```bash
+npm install
+```
+
+### 3. ตรวจสอบไฟล์สภาพแวดล้อม (.env)
+
+สร้างหรือตรวจสอบไฟล์ `.env` ที่โฟลเดอร์หลักของโปรเจกต์:
+
+```env
+DATABASE_URL="file:../data/street_food.db"
+```
+
+### 4. ซิงค์โครงสร้างฐานข้อมูล
+
+อัปเดตโครงสร้างตารางข้อมูลใน SQLite:
+
+```bash
+npx prisma db push
+```
+
+สร้าง Prisma Client สำหรับใช้งานในโปรเจกต์:
+
+```bash
+npx prisma generate
+```
+
+### 5. เริ่มต้น Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+เปิดเว็บเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000) ระบบจะเริ่มต้นและสร้างชุดข้อมูลตัวอย่างให้โดยอัตโนมัติ
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## คำสั่งที่สำคัญ (Scripts)
 
-## Learn More
+| คำสั่ง               | รายละเอียด                                                    |
+| -------------------- | ------------------------------------------------------------- |
+| `npm run dev`        | รันเซิร์ฟเวอร์จำลองสำหรับนักพัฒนาผ่าน Next.js Turbopack       |
+| `npm run build`      | คอมไพล์และสร้างชุดไฟล์สำหรับ Production                       |
+| `npm run start`      | รันเซิร์ฟเวอร์ในโหมด Production                               |
+| `npm run lint`       | ตรวจสอบคุณภาพโค้ดด้วย ESLint                                  |
+| `npx prisma db push` | ซิงค์โครงสร้างจาก `schema.prisma` เข้าสู่ไฟล์ฐานข้อมูล SQLite |
+| `npx prisma studio`  | เปิดหน้าต่างเว็บสำหรับดูและแก้ไขข้อมูลในฐานข้อมูลโดยตรง       |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## สถาปัตยกรรม Prisma 7
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+โครงการนี้รองรับมาตรฐานของ Prisma 7:
 
-## Deploy on Vercel
+- กำหนด URL การเชื่อมต่อฐานข้อมูลสำหรับการสั่งการ CLI ผ่านไฟล์ `prisma.config.ts`
+- ใช้งาน SQLite ในขั้นตอนรันไทม์ด้วยไดรเวอร์อะแดปเตอร์ `@prisma/adapter-better-sqlite3` ภายใน `lib/db.ts` เพื่อประสิทธิภาพการประมวลผลสูงสุด
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## สัญญาอนุญาต (License)
+
+โครงการนี้เผยแพร่ภายใต้สัญญาอนุญาตเปิดเผยรหัสต้นฉบับ GNU General Public License v3.0 (GPL-3.0) ดูรายละเอียดเพิ่มเติมได้ที่ไฟล์ [LICENSE](LICENSE)
