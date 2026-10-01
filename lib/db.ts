@@ -188,7 +188,7 @@ export async function getAllFoods(): Promise<Food[]> {
     },
   });
 
-  const foods = rows.map((r) => ({
+  const foods = rows.map((r: any) => ({
     id: r.id,
     name: r.name,
     category: r.category,
@@ -219,7 +219,7 @@ export async function getFoodCategories(): Promise<string[]> {
       category: "asc",
     },
   });
-  const categories = rows.map((r) => r.category);
+  const categories = rows.map((r: any) => r.category);
 
   cache.categories = {
     data: categories,
@@ -280,6 +280,23 @@ export async function updateFood(
       imageUrl: newImageUrl,
     },
   });
+
+  // Delete the old file if the image was replaced
+  if (
+    item.imageUrl !== undefined && 
+    item.imageUrl !== current.imageUrl && 
+    current.imageUrl.startsWith("/uploads/upload-")
+  ) {
+    const filename = path.basename(current.imageUrl);
+    const filePath = path.join(uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch {
+        // Ignore deletion error
+      }
+    }
+  }
 
   clearCache();
 
